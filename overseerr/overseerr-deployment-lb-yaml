@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overseerr
+  namespace: robert-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: overseerr
+  template:
+    metadata:
+      labels:
+        app: overseerr
+    spec:
+      containers:
+      - name: overseerr
+        image: sctx/overseerr
+        ports:
+        - containerPort: 5055
+        env:
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: TZ
+          value: "Europe/Paris"
+        - name: PORT
+          value: "5055"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+      volumes:
+      - name: config-volume
+        persistentVolumeClaim:
+          claimName: overseerr-config-pvc
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: overseerr-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5055
+      targetPort: 5055
+  selector:
+    app: overseerr
+  loadBalancerIP: 192.168.1.100

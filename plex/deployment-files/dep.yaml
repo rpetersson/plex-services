@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: plex
+  namespace: robert-prod
+spec:
+  serviceName: plex-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plex
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - plex-node
+      containers:
+      - name: plex
+        image: index.docker.io/plexinc/pms-docker:latest
+        env:
+         - name: PUID
+           value: "0"
+         - name: PGID
+           value: "0"
+         - name: TZ
+           value: "Etc/UTC"
+         - name: PLEX_CLAIM
+           value: "claim-fsC7mTtbbXQvVzFcmo1z"
+        ports:
+        - containerPort: 32400
+          name: pms
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /config
+          name: pms-config #Not using mount for testing.
+        - mountPath: /transcode
+          name: pms-transcode
+        - mountPath: /movies
+          name: movies-volume
+        - mountPath: /series
+          name: series-volume
+      enableServiceLinks: true
+      serviceAccountName: plex-media-server-1744042740
+      terminationGracePeriodSeconds: 120
+      volumes:
+      - name: movies-volume
+        persistentVolumeClaim:
+          claimName: plex-data-movies-nfs-pvc
+
+      - name: series-volume
+        persistentVolumeClaim:
+          claimName: plex-data-series-nfs-pvc
+
+      - name: plex-config
+        persistentVolumeClaim:
+          claimName: plex-data-config-nfs-pvc
+
+      - name: pms-transcode
+        emptyDir: {}
+  volumeClaimTemplates:
+  - metadata:
+      name: pms-config
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex
+  namespace: robert-prod
+  labels:
+    app: plex-headless
+spec:
+  type: LoadBalancer
+  selector:
+    app: plex
+  ports:
+  - name: pms
+    port: 32400
+    targetPort: 32400
+

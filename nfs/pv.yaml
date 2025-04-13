@@ -1,0 +1,81 @@
+#plex-data
+#Downloads
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-data-downloads-nfs-pv
+spec:
+  capacity:
+    storage: 4000Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /Downloads
+    server: k3s-master.local
+---
+#plex-data
+#Movies
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-data-movies-nfs-pv
+spec:
+  capacity:
+    storage: 4000Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /Movies
+    server: k3s-master.local
+---
+#plex-data
+#Series
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-data-series-nfs-pv
+spec:
+  capacity:
+   storage: 4000Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /Series
+    server: k3s-master.local
+
+---
+#plex-config
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-data-config-nfs-pv
+spec:
+  capacity:
+   storage: 4000Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    - nfsvers=4.1
+  nfs:
+    path: /plex-config
+    server: k3s-master.local

@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sonarr-config-pvc
+  namespace: robert-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: robert-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:latest
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: "Etc/UTC"
+          volumeMounts:
+            - mountPath: /config
+              name: sonarr-config
+            - mountPath: /tv
+              name: sonarr-tv
+            - mountPath: /downloads
+              name: sonarr-downloads
+          ports:
+            - containerPort: 8989
+      volumes:
+        - name: sonarr-config
+          persistentVolumeClaim:
+            claimName: sonarr-config-pvc
+        - name: sonarr-tv
+          persistentVolumeClaim:
+            claimName: plex-data-series-nfs-pvc
+        - name: sonarr-downloads
+          persistentVolumeClaim:
+            claimName: plex-data-downloads-nfs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr
+  namespace: robert-prod
+spec:
+  selector:
+    app: sonarr
+  ports:
+    - protocol: TCP
+      port: 8989
+  type: LoadBalancer
+---

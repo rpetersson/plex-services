@@ -1,0 +1,58 @@
+# -- The docker image information for the pms application
+image:
+  # -- The public dockerhub registry
+  registry: index.docker.io
+  repository: plexinc/pms-docker
+  # -- If unset use "latest"
+  tag: "1.41.5.9522-a96edc606"
+  sha: ""
+  pullPolicy: IfNotPresent
+
+ingress:
+  # -- Specify if an ingress resource for the pms server should be created or not
+  enabled: false
+
+pms:
+  # -- The storage class to use when provisioning the pms config volume
+  # this needs to be created manually, null will use the default
+  storageClassName: null
+
+  # -- The volume size to provision for the PMS database
+  configStorage: 1Gi
+  gpu:
+    nvidia:
+      enabled: false
+
+  # -- Enable process namespace sharing within the pod.
+  shareProcessNamespace: false
+
+# this is ignored if rclone is not enabled
+initContainer:
+  image:
+    # -- The public dockerhub registry
+    registry: index.docker.io
+    repository: alpine
+    # -- If unset use latest
+    tag: 3.18.0
+    sha: ""
+    pullPolicy: IfNotPresent
+
+runtimeClassName: ""
+
+service:
+  type: LoadBalancer
+  port: 32400
+
+extraEnv: {}
+# extraEnv:
+# This claim is optional, and is only used for the first startup of PMS
+# The claim is obtained from https://www.plex.tv/claim/ is is only valid for a few minutes
+#   PLEX_CLAIM: "claim"
+#   HOSTNAME: "PlexServer"
+#   TZ: "Etc/UTC"
+#   PLEX_UPDATE_CHANNEL: "5"
+#   PLEX_UID: "uid of plex user"
+#   PLEX_GID: "group id of plex user"
+# a list of CIDRs that can use the server without authentication
+  # this is only used for the first startup of PMS
+#   ALLOWED_NETWORKS: "0.0.0.0/0"

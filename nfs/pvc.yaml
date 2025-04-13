@@ -1,0 +1,59 @@
+# PVC
+#Downloads
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-data-downloads-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 4000Gi
+  storageClassName: ""
+---
+#PVC
+#Movies
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-data-movies-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 4000Gi
+  storageClassName: "" 
+---
+#PVC
+#Series
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-data-series-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 4000Gi
+  storageClassName: "" 
+---
+#PVC
+#config
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-data-config-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 4000Gi
+  storageClassName: "" 

@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radarr-config-pvc
+  namespace: robert-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: robert-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      containers:
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:latest
+          env:
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TZ
+              value: "Etc/UTC"
+          volumeMounts:
+            - mountPath: /config
+              name: radarr-config
+            - mountPath: /movies
+              name: radarr-movies
+            - mountPath: /downloads
+              name: radarr-downloads
+          ports:
+            - containerPort: 7878
+      volumes:
+        - name: radarr-config
+          persistentVolumeClaim:
+            claimName: radarr-config-pvc
+        - name: radarr-movies
+          persistentVolumeClaim:
+            claimName: plex-data-movies-nfs-pvc
+        - name: radarr-downloads
+          persistentVolumeClaim:
+            claimName: plex-data-downloads-nfs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  namespace: robert-prod
+spec:
+  selector:
+    app: radarr
+  ports:
+    - protocol: TCP
+      port: 7878
+  type: LoadBalancer
+
