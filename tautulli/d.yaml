@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tautulli-config-pvc
+  namespace: robert-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100M
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tautulli
+  namespace: robert-prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tautulli
+  template:
+    metadata:
+      labels:
+        app: tautulli
+    spec:
+      containers:
+        - name: tautulli
+          image: ghcr.io/tautulli/tautulli:latest
+          ports:
+            - containerPort: 8181
+              name: http
+          env:
+            - name: PUID
+              value: "1000"   # change if needed
+            - name: PGID
+              value: "1000"   # change if needed
+            - name: TZ
+              value: "Europe/Oslo"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: tautulli-config-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tautulli
+  namespace: robert-prod
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8181
+      targetPort: 8181
+      protocol: TCP
+      name: http
+  selector:
+    app: tautulli
