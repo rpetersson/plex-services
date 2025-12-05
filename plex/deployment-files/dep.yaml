@@ -43,15 +43,6 @@ spec:
         - containerPort: 32400
           name: pms
           protocol: TCP
-        livenessProbe:
-          httpGet:
-            path: /identity
-            port: 32400
-            scheme: HTTP
-          initialDelaySeconds: 60
-          periodSeconds: 30
-          timeoutSeconds: 5
-          failureThreshold: 3
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
         volumeMounts:
