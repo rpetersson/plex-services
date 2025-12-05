@@ -26,16 +26,14 @@ spec:
       labels:
         app: sonarr
     spec:
-      securityContext:
-        fsGroup: 1000
       containers:
         - name: sonarr
           image: lscr.io/linuxserver/sonarr:latest
           env:
             - name: PUID
-              value: "1000"
+              value: "0"
             - name: PGID
-              value: "1000"
+              value: "0"
             - name: TZ
               value: "Etc/UTC"
           volumeMounts:
